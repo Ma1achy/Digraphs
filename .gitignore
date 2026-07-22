@@ -14,9 +14,9 @@ env/
 .coverage
 htmlcov/
 
-# Generated drawings
-task1.png
-task2.png
+# Generated drawings from `python main.py --draw` (root only; assets/ is committed)
+/task1.png
+/task2.png
 
 # OS / editor
 .DS_Store
