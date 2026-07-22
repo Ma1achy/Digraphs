@@ -28,7 +28,9 @@ import networkx as nx  # noqa: E402
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
-from digraph_enum.draw import _ARC_RAD, _LAYOUT, _draw_one, draw_grid  # noqa: E402
+from digraph_enum.draw import (  # noqa: E402
+    _ARC_RAD, _LAYOUT, _draw_one, _edge_label, draw_grid,
+)
 from digraph_enum.constraints import load_L_digraphs  # noqa: E402
 from digraph_enum.graphs import edges_to_mask  # noqa: E402
 from digraph_enum.tasks import task1, task2  # noqa: E402
@@ -151,19 +153,20 @@ def render_alphabet():
     graphs = load_L_digraphs(str(DATA))
     cols = 7
     rows = math.ceil(len(graphs) / cols)
-    fig, axes = plt.subplots(rows, cols, figsize=(2.0 * cols, 2.2 * rows),
+    fig, axes = plt.subplots(rows, cols, figsize=(2.0 * cols, 2.7 * rows),
                              squeeze=False)
     for idx in range(rows * cols):
         ax = axes[idx // cols][idx % cols]
         if idx < len(graphs):
             _draw_three(ax, graphs[idx], node_size=430, font_size=9)
-            edges = sorted(graphs[idx].edges())
-            label = " ".join(f"({u},{v})" for u, v in edges) if edges else "∅"
-            ax.set_title(f"L{idx}   {label}", fontsize=7)
+            # Index on its own line; the (wrapped) edge list beneath it so long
+            # labels stay inside the cell instead of running into the next one.
+            label = _edge_label(sorted(graphs[idx].edges()), width=20)
+            ax.set_title(f"L{idx}\n{label}", fontsize=7, linespacing=0.95, pad=4)
         else:
             ax.axis("off")
     fig.suptitle("L — the 21 allowed 3-vertex patterns", fontsize=13)
-    fig.tight_layout(rect=(0, 0, 1, 0.96))
+    fig.tight_layout(rect=(0, 0, 1, 0.96), h_pad=2.2)
     fig.savefig(ASSETS / "alphabet.png", dpi=120)
     plt.close(fig)
 

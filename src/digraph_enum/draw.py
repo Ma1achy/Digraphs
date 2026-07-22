@@ -16,6 +16,7 @@ Uses the headless ``Agg`` backend so it works inside a container with no display
 from __future__ import annotations
 
 import math
+import textwrap
 from typing import List, Sequence
 
 import matplotlib
@@ -32,11 +33,17 @@ _LAYOUT = nx.circular_layout(nx.empty_graph(N))
 _ARC_RAD = 0.25  # how far antiparallel arcs bow apart
 
 
-def _edge_label(edges: Sequence) -> str:
-    """Compact one-line label, e.g. ``(0,1) (1,2) (2,3)``; ``∅`` when empty."""
+def _edge_label(edges: Sequence, width: int = 23) -> str:
+    """Edge-list label wrapped to ``width`` characters so it stays inside its cell.
+
+    Each ``(u,v)`` token is kept intact (they contain no spaces, so wrapping only
+    ever breaks between tokens). Returns ``∅`` for the empty graph. Dense graphs
+    become a few short lines rather than one line that overruns its neighbours.
+    """
     if not edges:
         return "∅"
-    return " ".join(f"({u},{v})" for u, v in edges)
+    label = " ".join(f"({u},{v})" for u, v in edges)
+    return textwrap.fill(label, width=width)
 
 
 def _draw_one(ax, mask: int) -> None:
@@ -95,7 +102,7 @@ def _draw_one(ax, mask: int) -> None:
             ),
         )
 
-    ax.set_title(_edge_label(edges), fontsize=7)
+    ax.set_title(_edge_label(edges), fontsize=6.5, linespacing=0.95, pad=4)
     ax.set_xlim(-1.85, 1.85)
     ax.set_ylim(-1.85, 1.85)
     ax.set_aspect("equal")
@@ -112,7 +119,9 @@ def draw_grid(masks: List[int], path: str, title: str | None = None,
     cols = max(1, min(cols, n)) if n else 1
     rows = max(1, math.ceil(n / cols))
 
-    fig, axes = plt.subplots(rows, cols, figsize=(2.1 * cols, 2.3 * rows),
+    # Taller rows leave room for wrapped multi-line titles (a 16-edge graph
+    # wraps to four short lines) without the text colliding into the row above.
+    fig, axes = plt.subplots(rows, cols, figsize=(2.1 * cols, 2.7 * rows),
                              squeeze=False)
     for idx in range(rows * cols):
         ax = axes[idx // cols][idx % cols]
@@ -123,7 +132,7 @@ def draw_grid(masks: List[int], path: str, title: str | None = None,
 
     if title:
         fig.suptitle(title, fontsize=12)
-    fig.tight_layout(rect=(0, 0, 1, 0.97 if title else 1.0))
+    fig.tight_layout(rect=(0, 0, 1, 0.97 if title else 1.0), h_pad=2.2)
     fig.savefig(path, dpi=110)
     plt.close(fig)
     return path
