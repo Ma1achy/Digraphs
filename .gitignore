@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Generated drawings
+task1.png
+task2.png
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+
+# Local Claude settings
+.claude/settings.local.json
